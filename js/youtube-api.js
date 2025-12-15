@@ -1,7 +1,7 @@
 // YouTube Data API helper functions
 const YouTubeAPI = {
     // API Key - Replace with your own API key
-    API_KEY: 'AIzaSyBBAdXB7_lKb7ucHMYWTuFGkYXFsLkXFvI',
+    API_KEY: 'AIzaSyB62KIA5JoMUh4e8grwCqne3QTLFmmKyHk',
     
     // Base URLs
     SEARCH_URL: 'https://www.googleapis.com/youtube/v3/search',
