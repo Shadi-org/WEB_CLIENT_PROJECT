@@ -168,11 +168,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${truncatedTitle}
                     </h6>
                     <p class="video-stats mb-2">
-                        <i class="bi bi-eye me-1"></i>${YouTubeAPI.formatViewCount(video.viewCount)} צפיות
+                        <i class="bi bi-eye me-1"></i>${YouTubeAPI.formatViewCount(video.viewCount)} views
                     </p>
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-outline-primary flex-grow-1 btn-play" data-video-id="${video.videoId}" data-title="${video.title}">
-                            <i class="bi bi-play-fill"></i> נגן
+                            <i class="bi bi-play-fill"></i> Play
                         </button>
                         <button class="btn btn-sm ${isInFavorites ? 'btn-add-favorite added' : 'btn-outline-danger btn-add-favorite'}" 
                                 data-video='${JSON.stringify(video).replace(/'/g, "&#39;")}'>
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const select = document.getElementById('existingPlaylist');
         const playlists = Storage.getUserPlaylists();
 
-        select.innerHTML = '<option value="">-- בחר פלייליסט --</option>';
+        select.innerHTML = '<option value="">-- Select Playlist --</option>';
         playlists.forEach(playlist => {
             const option = document.createElement('option');
             option.value = playlist.id;
