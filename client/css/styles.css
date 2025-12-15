@@ -525,3 +525,19 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #a1a1a1;
 }
+
+/* ============================================
+   Local MP3 Songs
+   ============================================ */
+.song-card.local-song .thumbnail-container {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.song-card.local-song .thumbnail-container img {
+    opacity: 0.9;
+}
+
+.song-card.local-song .play-overlay {
+    font-size: 3rem;
+}
+

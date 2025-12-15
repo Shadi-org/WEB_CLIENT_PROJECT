@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Form submission
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // Hide previous errors
@@ -51,34 +51,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!isValid) return;
 
-        // Authenticate user
-        const user = authenticateUser(username, password);
-        
-        if (user) {
-            // Store current user in sessionStorage
-            const userData = {
-                id: user.id,
-                username: user.username,
-                firstName: user.firstName,
-                imageUrl: user.imageUrl
-            };
-            sessionStorage.setItem('currentUser', JSON.stringify(userData));
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Logging in...';
+        submitBtn.disabled = true;
 
-            // Redirect to search page
-            window.location.href = 'search.html';
-        } else {
-            // Show error
+        try {
+            // Call login API
+            const result = await API.login(username, password);
+            
+            if (result.success) {
+                // Store current user in sessionStorage
+                Auth.setCurrentUser(result.user);
+                // Redirect to search page
+                window.location.href = 'search.html';
+            } else {
+                // Show error
+                loginError.classList.remove('d-none');
+                loginErrorMessage.textContent = result.message || 'Invalid username or password';
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Login error:', error);
             loginError.classList.remove('d-none');
-            loginErrorMessage.textContent = 'Invalid username or password';
+            loginErrorMessage.textContent = 'An error occurred. Please try again.';
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
-
-    // Helper function to authenticate user
-    function authenticateUser(username, password) {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        return users.find(user => 
-            user.username.toLowerCase() === username.toLowerCase() && 
-            user.password === password
-        );
-    }
 });

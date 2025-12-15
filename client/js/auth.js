@@ -11,10 +11,19 @@ const Auth = {
         return userData ? JSON.parse(userData) : null;
     },
 
+    // Set current user
+    setCurrentUser: function(user) {
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+    },
+
     // Logout user
-    logout: function() {
+    logout: async function() {
+        try {
+            await API.logout();
+        } catch (e) {
+            // Ignore errors
+        }
         sessionStorage.removeItem('currentUser');
-        // Clear search state on logout
         sessionStorage.removeItem('searchState');
         window.location.href = 'login.html';
     },

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">
+  <rect width="320" height="180" fill="#6366f1"/>
+  <g transform="translate(160, 90)">
+    <circle r="50" fill="white" opacity="0.2"/>
+    <circle r="40" fill="white" opacity="0.3"/>
+    <path d="M-15 -25 L-15 25 L20 0 Z" fill="white"/>
+    <text y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">MP3</text>
+  </g>
+</svg>

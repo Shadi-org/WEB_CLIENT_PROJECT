@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Form validation and submission
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     // Clear previous errors
@@ -52,9 +52,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!username) {
       showError("username", "usernameError", "Please enter a username");
       isValid = false;
-    } else if (isUsernameTaken(username)) {
-      showError("username", "usernameError", "Username already exists");
-      isValid = false;
+    } else {
+      // Check if username exists via API
+      const checkResult = await API.checkUsername(username);
+      if (checkResult.exists) {
+        showError("username", "usernameError", "Username already exists");
+        isValid = false;
+      }
     }
 
     // Validate password
@@ -87,29 +91,44 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (isValid) {
-      // Create user object
-      const user = {
-        id: generateUserId(),
-        username: username,
-        password: password,
-        firstName: firstName,
-        imageUrl: imageUrl || null,
-        createdAt: new Date().toISOString(),
-      };
+      // Show loading state
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registering...';
+      submitBtn.disabled = true;
 
-      // Save user to localStorage
-      saveUser(user);
+      try {
+        // Call register API
+        const result = await API.register({
+          username: username,
+          password: password,
+          firstName: firstName,
+          imageUrl: imageUrl || null
+        });
 
-      // Show success modal
-      const successModal = new bootstrap.Modal(
-        document.getElementById("successModal")
-      );
-      successModal.show();
+        if (result.success) {
+          // Show success modal
+          const successModal = new bootstrap.Modal(
+            document.getElementById("successModal")
+          );
+          successModal.show();
 
-      // Redirect to login page after 2 seconds
-      setTimeout(function () {
-        window.location.href = "login.html";
-      }, 2000);
+          // Redirect to login page after 2 seconds
+          setTimeout(function () {
+            window.location.href = "login.html";
+          }, 2000);
+        } else {
+          // Show error
+          showError("username", "usernameError", result.message || "Registration failed");
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        showError("username", "usernameError", "An error occurred. Please try again.");
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
     }
   });
 
@@ -166,27 +185,5 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (_) {
       return false;
     }
-  }
-
-  function isUsernameTaken(username) {
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    return users.some(
-      (user) => user.username.toLowerCase() === username.toLowerCase()
-    );
-  }
-
-  function generateUserId() {
-    return "user_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-  }
-
-  function saveUser(user) {
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    users.push(user);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    // Initialize empty playlists for the user
-    const playlists = JSON.parse(localStorage.getItem("playlists") || "{}");
-    playlists[user.id] = [];
-    localStorage.setItem("playlists", JSON.stringify(playlists));
   }
 });

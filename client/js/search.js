@@ -1,5 +1,5 @@
 // Search page script
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check authentication
     if (!Auth.requireAuth()) return;
     Auth.setupNavbar();
@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Setup welcome section
     setupWelcome();
+
+    // Load playlists from server
+    await Storage.fetchUserPlaylists();
 
     // Restore search state if exists
     restoreSearchState();
@@ -225,18 +228,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const confirmAddBtn = document.getElementById('confirmAddToPlaylist');
 
         // Create new playlist from modal
-        createPlaylistBtn.addEventListener('click', function() {
+        createPlaylistBtn.addEventListener('click', async function() {
             const name = newPlaylistInput.value.trim();
             if (name) {
-                const newPlaylist = Storage.createPlaylist(name);
-                refreshPlaylistDropdown();
-                existingPlaylistSelect.value = newPlaylist.id;
-                newPlaylistInput.value = '';
+                const newPlaylist = await Storage.createPlaylist(name);
+                if (newPlaylist) {
+                    await refreshPlaylistDropdown();
+                    existingPlaylistSelect.value = newPlaylist.id;
+                    newPlaylistInput.value = '';
+                }
             }
         });
 
         // Confirm add to playlist
-        confirmAddBtn.addEventListener('click', function() {
+        confirmAddBtn.addEventListener('click', async function() {
             const playlistId = existingPlaylistSelect.value;
             if (!playlistId) {
                 alert('Please select a playlist');
@@ -244,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (currentVideoToAdd) {
-                const added = Storage.addSongToPlaylist(playlistId, currentVideoToAdd);
+                const added = await Storage.addSongToPlaylist(playlistId, currentVideoToAdd);
                 if (added) {
                     // Close modal
                     bootstrap.Modal.getInstance(addToPlaylistModal).hide();
@@ -256,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast(`Song added to playlist "${playlist.name}"`, playlistId);
 
                     // Refresh results to show checkmark
+                    await Storage.fetchUserPlaylists();
                     displayResults(searchResultsCache);
                 } else {
                     alert('This song is already in this playlist');
@@ -265,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Open add to playlist modal
-    function openAddToPlaylistModal() {
+    async function openAddToPlaylistModal() {
         if (!currentVideoToAdd) return;
 
         // Update modal content
@@ -273,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modalVideoTitle').textContent = currentVideoToAdd.title;
 
         // Refresh playlist dropdown
-        refreshPlaylistDropdown();
+        await refreshPlaylistDropdown();
 
         // Clear new playlist input
         document.getElementById('newPlaylistName').value = '';
@@ -283,9 +289,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Refresh playlist dropdown
-    function refreshPlaylistDropdown() {
+    async function refreshPlaylistDropdown() {
         const select = document.getElementById('existingPlaylist');
-        const playlists = Storage.getUserPlaylists();
+        const playlists = await Storage.fetchUserPlaylists();
 
         select.innerHTML = '<option value="">-- Select Playlist --</option>';
         playlists.forEach(playlist => {
