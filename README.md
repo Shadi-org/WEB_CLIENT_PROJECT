@@ -71,7 +71,3 @@ Server runs on `http://localhost:3000`
 
 ### File Upload
 - `POST /api/upload/:userId/:playlistId` - Upload MP3 file to playlist
-
-## Author
-
-Shadi Abu Jaber - 212955108
